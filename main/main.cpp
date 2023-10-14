@@ -33,7 +33,7 @@
 #include "web_server.h"
 #include "programmer.h"
 #include "protocol_examples_common.h"
-
+#include "driver/gpio.h"
 
 static const char *TAG = "main";
 static httpd_handle_t http_server = NULL;
@@ -65,6 +65,20 @@ static void connect_handler(void *arg, esp_event_base_t event_base, int32_t even
     web_server_init((httpd_handle_t *)arg);
 }
 
+static void led_init(){
+    gpio_pad_select_gpio(GPIO_NUM_40);
+    gpio_pad_select_gpio(GPIO_NUM_41);
+    gpio_pad_select_gpio(GPIO_NUM_42);
+
+    gpio_set_direction(GPIO_NUM_40, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_NUM_41, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_NUM_42, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(GPIO_NUM_40, 1);
+    gpio_set_level(GPIO_NUM_41, 1);
+    gpio_set_level(GPIO_NUM_42, 0);
+}
+
  extern "C" void app_main(void)
 {
     bool ret = false;
@@ -93,6 +107,8 @@ static void connect_handler(void *arg, esp_event_base_t event_base, int32_t even
         .callback_rx_wanted_char = NULL,
         .callback_line_state_changed = NULL,
         .callback_line_coding_changed = usb_cdc_set_line_codinig};
+
+    led_init();
 
     DAP_Setup();
 

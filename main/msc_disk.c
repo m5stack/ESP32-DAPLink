@@ -57,12 +57,12 @@ static esp_err_t storage_init_sdmmc(sdmmc_card_t **card)
     // For SD Card, set bus width to use
     slot_config.width = 4;
 
-    slot_config.clk = GPIO_NUM_36;
-    slot_config.cmd = GPIO_NUM_35;
-    slot_config.d0 = GPIO_NUM_37;
-    slot_config.d1 = GPIO_NUM_38;
-    slot_config.d2 = GPIO_NUM_33;
-    slot_config.d3 = GPIO_NUM_34;
+    slot_config.clk = GPIO_NUM_33;
+    slot_config.cmd = GPIO_NUM_34;
+    slot_config.d0 = GPIO_NUM_35;
+    slot_config.d1 = GPIO_NUM_36;
+    slot_config.d2 = GPIO_NUM_48;
+    slot_config.d3 = GPIO_NUM_47;
 
     // Enable internal pullups on enabled pins. The internal pullups
     // are insufficient however, please make sure 10k external pullups are
