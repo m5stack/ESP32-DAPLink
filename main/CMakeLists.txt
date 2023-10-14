@@ -16,6 +16,8 @@ idf_component_register(SRCS "main.cpp"
                         "prog_idle.cpp"
                         "prog_online.cpp"
                         "prog_offline.cpp"
+                        "ui_main.c"
+                        "lvgl_demo_ui.c"
                        INCLUDE_DIRS .
                        EMBED_FILES "../html/root.html"
                         "../html/favicon.ico"

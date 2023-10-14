@@ -42,6 +42,8 @@ TaskHandle_t kDAPTaskHandle = NULL;
 extern "C" void tcp_server_task(void *pvParameters);
 extern "C" void DAP_Thread(void *pvParameters);
 
+extern "C" void ui_main(void);
+
 extern "C" uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t *buffer, uint16_t reqlen)
 {
     return 0;
@@ -139,4 +141,7 @@ static void led_init(){
 
     // DAP handle task
     xTaskCreate(DAP_Thread, "DAP_Task", 2048, NULL, 10, &kDAPTaskHandle);
+    
+    //ui main
+    ui_main();
 }
