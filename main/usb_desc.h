@@ -11,17 +11,25 @@
 #pragma once
 
 #include "tinyusb.h"
+#include "dap_configuration.h"
+
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+
+
     enum
     {
         ITF_NUM_CDC = 0,
         ITF_NUM_CDC_DATA,
+#ifdef USE_WINUSB
+        ITF_NUM_BULK,
+#else
         ITF_NUM_HID,
+#endif
         ITF_NUM_MSC,
         ITF_NUM_TOTAL
     };
@@ -33,7 +41,11 @@ extern "C"
         STRID_PRODUCT,
         STRID_SERIAL_NUMBER,
         STRID_CDC_INTERFACE,
+#ifdef USE_WINUSB
+        STRID_BULK_INTERFACE,
+#else
         STRID_HID_INTERFACE,
+#endif
         STRID_MSC_INTERFACE
     };
 
@@ -44,8 +56,13 @@ extern "C"
         EDPT_CDC_NOTIFY = 0x81,
         EDPT_CDC_OUT = 0x02,
         EDPT_CDC_IN = 0x82,
+#ifdef USE_WINUSB
+        EDPT_BULK_OUT = 0x03,
+        EDPT_BULK_IN = 0x83,
+#else
         EDPT_HID_OUT = 0x03,
         EDPT_HID_IN = 0x83,
+#endif
         EDPT_MSC_OUT = 0x04,
         EDPT_MSC_IN = 0x84,
     };
