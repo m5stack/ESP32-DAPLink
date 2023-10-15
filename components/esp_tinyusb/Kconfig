@@ -202,6 +202,15 @@ menu "TinyUSB Stack"
                 Setting value greater than 0 will enable TinyUSB HID feature.
     endmenu # "HID Device Class (HID)"
 
+
+    menu "Vendor Interface Device Class (vendor)"
+        config TINYUSB_VENDOR_ENABLED
+            bool "Enable TinyUSB Vendor feature"
+            default n
+            help
+                Enable TinyUSB Vendor feature.
+    endmenu # "Vendor Device Class (vendor)"
+
     menu "Device Firmware Upgrade (DFU)"
         choice TINYUSB_DFU_MODE
             prompt "DFU mode"

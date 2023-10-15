@@ -1,6 +1,6 @@
 #include "usb_desc.h"
 #include "tusb_cdc_acm.h"
-#include "usb_bulk.h"
+#include "usb_dap_bulk.h"
 
 #ifdef USE_WINUSB
 #define TUSB_DESC_WITH_MSC_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_MSC_DESC_LEN + TUD_CDC_DESC_LEN + TUD_VENDOR_DESC_LEN)
@@ -168,4 +168,12 @@ int get_string_descriptor_count(bool with_msc)
 const uint8_t *get_configuration_descriptor(bool with_msc)
 {
     return with_msc ? desc_configuration_with_msc : desc_configuration_without_msc;
+}
+
+bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * request){
+    return dap_bulk_ctrl_request(rhport, stage, request);
+}
+
+void tud_vendor_rx_cb(uint8_t itf){
+    dap_bulk_rx_cb(itf);
 }
