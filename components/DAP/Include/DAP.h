@@ -366,8 +366,9 @@ extern "C"
   static inline void PIN_DELAY_SLOW(uint32_t delay)
   {
     uint32_t count = delay;
-    while (--count)
-      ;
+    while (--count){
+      asm volatile("nop");
+    }
   }
 
 // Fixed delay for fast clock generation
