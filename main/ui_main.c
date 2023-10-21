@@ -18,6 +18,7 @@
 #include "esp_log.h"
 #include "lvgl.h"
 #include "demos/lv_demos.h"
+#include "buzz.h"
 
 
 static const char *TAG = "example";
@@ -175,6 +176,7 @@ static void example_lvgl_encoder_read(lv_indev_drv_t *indev_drv, lv_indev_data_t
   if (pressed) {
     ESP_LOGI(TAG, "key pressed: %d", last_key);
     data->state = LV_INDEV_STATE_PRESSED;
+    buzz_beep(100);
   } else {
     data->state = LV_INDEV_STATE_RELEASED;
   }
@@ -345,13 +347,6 @@ void ui_main(void)
     // Lock the mutex due to the LVGL APIs are not thread-safe
     if (example_lvgl_lock(-1)) {
         example_lvgl_demo_ui(disp);
-        
-        //lv_demo_music();
-        //lv_demo_stress();
-        //lv_demo_benchmark();
-        //lv_demo_widgets();
-        // Release the mutex
         example_lvgl_unlock();
-
     }
 }

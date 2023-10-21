@@ -4,6 +4,8 @@
 #include "DAP.h"
 
 
+
+
 #define URL "example.tinyusb.org/webusb-serial/index.html"
 #define TAG "UBLK"
 
@@ -38,6 +40,7 @@ bool dap_bulk_ctrl_request(uint8_t rhport, uint8_t stage,
       return tud_control_xfer(rhport, request, (void *)(uintptr_t)&desc_url,
                               desc_url.bLength);
 
+#ifdef USE_WINUSB
     case VENDOR_REQUEST_MICROSOFT:
       if (request->wIndex == 7) {
         // Get Microsoft OS 2.0 compatible descriptor
@@ -49,6 +52,7 @@ bool dap_bulk_ctrl_request(uint8_t rhport, uint8_t stage,
       } else {
         return false;
       }
+#endif
 
     default:
       break;

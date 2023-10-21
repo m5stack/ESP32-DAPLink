@@ -34,6 +34,8 @@
 #include "programmer.h"
 #include "protocol_examples_common.h"
 #include "driver/gpio.h"
+#include "power_measure.h"
+#include "buzz.h"
 
 static const char *TAG = "main";
 static httpd_handle_t http_server = NULL;
@@ -141,6 +143,9 @@ static void led_init(){
 
     // DAP handle task
     xTaskCreate(DAP_Thread, "DAP_Task", 2048, NULL, 10, &kDAPTaskHandle);
+
+    buzz_init();
+    ESP_ERROR_CHECK(power_measure_init());
     
     //ui main
     ui_main();
