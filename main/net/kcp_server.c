@@ -9,9 +9,9 @@
  *
  */
 
-#include "main/kcp_server.h"
-#include "main/usbip_server.h"
-#include "main/wifi_configuration.h"
+#include "main/net/kcp_server.h"
+#include "main/net/usbip_server.h"
+#include "main/net/wifi_configuration.h"
 
 #include "components/kcp/ikcp.h"
 #include "components/kcp/ikcp_util.h"

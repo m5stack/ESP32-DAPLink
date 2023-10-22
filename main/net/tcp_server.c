@@ -11,9 +11,9 @@
 #include <stdint.h>
 #include <sys/param.h>
 
-#include "main/wifi_configuration.h"
-#include "main/usbip_server.h"
-#include "main/DAP_handle.h"
+#include "main/net/wifi_configuration.h"
+#include "main/net/usbip_server.h"
+#include "main/dap/DAP_handle.h"
 
 #include "components/elaphureLink/elaphureLink_protocol.h"
 

@@ -14,10 +14,10 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "main/usbip_server.h"
-#include "main/DAP_handle.h"
-#include "main/dap_configuration.h"
-#include "main/wifi_configuration.h"
+#include "main/net/usbip_server.h"
+#include "main/dap/DAP_handle.h"
+#include "main/dap/dap_configuration.h"
+#include "main/net/wifi_configuration.h"
 
 #include "components/USBIP/usb_descriptor.h"
 #include "components/DAP/include/DAP.h"
