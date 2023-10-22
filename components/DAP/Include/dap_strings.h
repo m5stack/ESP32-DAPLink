@@ -24,7 +24,7 @@
 // #include "target_board.h"
 
 #if !defined(CMSIS_DAP_PRODUCT_NAME)
-#define CMSIS_DAP_PRODUCT_NAME "DAPLink CMSIS-DAP"
+#define CMSIS_DAP_PRODUCT_NAME "MapleLink CMSIS-DAP"
 #endif
 
 #ifdef CONFIG_TINYUSB_DESC_MANUFACTURER_STRING

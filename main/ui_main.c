@@ -174,7 +174,7 @@ static void example_lvgl_encoder_read(lv_indev_drv_t *indev_drv, lv_indev_data_t
   }
 
   if (pressed) {
-    ESP_LOGI(TAG, "key pressed: %d", last_key);
+    //ESP_LOGI(TAG, "key pressed: %d", last_key);
     data->state = LV_INDEV_STATE_PRESSED;
     buzz_beep(100);
   } else {

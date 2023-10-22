@@ -27,11 +27,11 @@ BinaryProgram::~BinaryProgram()
 
 bool BinaryProgram::init(const FlashIface::target_cfg_t &cfg, uint32_t program_addr)
 {
-    if (!program_addr)
-    {
-        LOG_ERROR("The binary file must be provided with program address, %ld", _program_addr);
-        return false;
-    }
+    // if (!program_addr)
+    // {
+    //     LOG_ERROR("The binary file must be provided with program address, %ld", _program_addr);
+    //     return false;
+    // }
 
     _program_addr = program_addr;
     LOG_INFO("Starting to program bin at 0x%lx", _program_addr);

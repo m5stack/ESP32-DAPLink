@@ -54,7 +54,7 @@ void example_lvgl_demo_ui(lv_disp_t *disp) {
 
   lv_pwr_label = lv_label_create(scr);
   lv_label_set_text(lv_pwr_label, "Power: 0 mW");
-  lv_obj_center(lv_pwr_label);
+  lv_obj_align(lv_pwr_label, LV_ALIGN_LEFT_MID, 0, 0);
 
   lv_wifi_label = lv_label_create(scr);
   lv_label_set_text(lv_pwr_label, "IP: - ");

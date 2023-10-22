@@ -400,6 +400,9 @@ __STATIC_FORCEINLINE uint32_t PIN_nRESET_IN(void)
            - 0: issue a device hardware reset.
            - 1: release device hardware reset.
 */
+#define NVIC_Addr (0xe000e000)
+#include "debug_cm.h"
+extern uint8_t swd_write_word(uint32_t addr, uint32_t val);
 __STATIC_FORCEINLINE void     PIN_nRESET_OUT(uint32_t bit)
 {
 	if (bit)
@@ -409,6 +412,7 @@ __STATIC_FORCEINLINE void     PIN_nRESET_OUT(uint32_t bit)
 	else
 	{
 		WRITE_PERI_REG(GPIO_OUT_W1TC_REG, (0x1 << PIN_nRESET));
+		swd_write_word(NVIC_AIRCR, ((0x5FA << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk));
 	}
 }
 

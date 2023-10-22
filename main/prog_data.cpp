@@ -235,12 +235,12 @@ prog_err_def ProgData::request_decode(prog_req_t &request, char *buf, int len)
         return PROG_ERR_PROGRAM_NOT_EXIST;
     }
 
-    if (FileProgrammer::compare_extension(request.program.c_str(), ".bin") && (request.flash_addr == 0))
-    {
-        ESP_LOGE(TAG, "The programming address must be provided for programming with binary files.");
-        cJSON_Delete(root);
-        return PROG_ERR_FLASH_ADDR_NOT_EXIST;
-    }
+    // if (FileProgrammer::compare_extension(request.program.c_str(), ".bin") && (request.flash_addr == 0))
+    // {
+    //     ESP_LOGE(TAG, "The programming address must be provided for programming with binary files.");
+    //     cJSON_Delete(root);
+    //     return PROG_ERR_FLASH_ADDR_NOT_EXIST;
+    // }
 
     if ((request.mode == PROG_ONLINE_MODE) && (request.format == PROG_UNKNOWN_FORMAT))
     {
