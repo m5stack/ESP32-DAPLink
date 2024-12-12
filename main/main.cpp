@@ -37,6 +37,11 @@
 #include "power_measure.h"
 #include "buzz.h"
 
+#define EXAMPLE_ESP_WIFI_SSID      "ATOMS3R-DAP"
+#define EXAMPLE_ESP_WIFI_PASS      "12345678"
+#define EXAMPLE_ESP_WIFI_CHANNEL   1
+#define EXAMPLE_MAX_STA_CONN       1
+
 static const char *TAG = "main";
 static httpd_handle_t http_server = NULL;
 TaskHandle_t kDAPTaskHandle = NULL;
@@ -83,16 +88,47 @@ static void led_init(){
     gpio_set_level(GPIO_NUM_42, 0);
 }
 
+ extern "C"  void wifi_init_softap(void)
+{
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_create_default_wifi_ap();
+
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_AP_STACONNECTED, connect_handler, &http_server));
+
+    wifi_config_t wifi_config;
+    esp_wifi_get_config(WIFI_IF_AP, &wifi_config);
+    // wifi_config.ap.ssid = EXAMPLE_ESP_WIFI_SSID;
+    memcpy(wifi_config.ap.ssid, EXAMPLE_ESP_WIFI_SSID, strlen(EXAMPLE_ESP_WIFI_SSID));
+    wifi_config.ap.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID);
+    wifi_config.ap.channel = EXAMPLE_ESP_WIFI_CHANNEL;
+    // wifi_config.ap.password = EXAMPLE_ESP_WIFI_PASS;
+    memcpy(wifi_config.ap.password, EXAMPLE_ESP_WIFI_PASS, strlen(EXAMPLE_ESP_WIFI_PASS));
+    wifi_config.ap.max_connection = EXAMPLE_MAX_STA_CONN;
+    wifi_config.ap.pmf_cfg.required = true;
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
+             EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS, EXAMPLE_ESP_WIFI_CHANNEL);
+}
+
  extern "C" void app_main(void)
 {
     bool ret = false;
 
     ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, connect_handler, &http_server));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, disconnect_handler, &http_server));
-    ESP_ERROR_CHECK(example_connect());
+    // ESP_ERROR_CHECK(esp_netif_init());
+    // ESP_ERROR_CHECK(esp_event_loop_create_default());
+    // ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, connect_handler, &http_server));
+    // ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, disconnect_handler, &http_server));
+    // ESP_ERROR_CHECK(example_connect());
+    wifi_init_softap();
 
     tinyusb_config_t tusb_cfg = {
         .device_descriptor = NULL,
@@ -112,7 +148,7 @@ static void led_init(){
         .callback_line_state_changed = NULL,
         .callback_line_coding_changed = usb_cdc_set_line_codinig};
 
-    led_init();
+    // led_init();
 
     DAP_Setup();
 
@@ -135,18 +171,18 @@ static void led_init(){
 
 
         // Specify the usbip server task
-#if (USE_TCP_NETCONN == 1)
-    xTaskCreate(tcp_netconn_task, "tcp_server", 4096, NULL, 14, NULL);
-#else // BSD style
-    xTaskCreate(tcp_server_task, "tcp_server", 4096, NULL, 14, NULL);
-#endif
+// #if (USE_TCP_NETCONN == 1)
+//     xTaskCreate(tcp_netconn_task, "tcp_server", 4096, NULL, 14, NULL);
+// #else // BSD style
+//     xTaskCreate(tcp_server_task, "tcp_server", 4096, NULL, 14, NULL);
+// #endif
 
     // DAP handle task
     xTaskCreate(DAP_Thread, "DAP_Task", 2048, NULL, 10, &kDAPTaskHandle);
 
-    buzz_init();
-    ESP_ERROR_CHECK(power_measure_init());
+    // buzz_init();
+    // ESP_ERROR_CHECK(power_measure_init());
     
     //ui main
-    ui_main();
+    // ui_main();
 }
