@@ -10,6 +10,9 @@
 #include "swd_iface.h"
 #include "debug_cm.h"
 #include <cstring>
+#include "log.h"
+
+#define TAG "swd_iface"
 
 #define NVIC_Addr (0xe000e000)
 #define DBG_Addr (0xe000edf0)
@@ -309,11 +312,13 @@ bool SWDIface::read_word(uint32_t addr, uint32_t *val)
 {
     if (!write_ap(AP_CSW, CSW_VALUE | CSW_SIZE32))
     {
+        LOG_ERROR("write ap failed");
         return false;
     }
 
     if (!read_data(addr, val))
     {
+        LOG_ERROR("read addr failed");
         return false;
     }
 
@@ -854,12 +859,14 @@ bool SWDIface::set_target_state(target_state_t state)
     case TARGET_RESET_PROGRAM:
         if (!init_debug())
         {
+            LOG_ERROR("init debug failed");
             return false;
         }
 
         // Enable debug and halt the core (DHCSR <- 0xA05F0003)
         if (!write_word(DBG_HCSR, DBGKEY | C_DEBUGEN | C_HALT))
         {
+            LOG_ERROR("write word failed");
             return false;
         }
 
@@ -868,6 +875,7 @@ bool SWDIface::set_target_state(target_state_t state)
         {
             if (!read_word(DBG_HCSR, &val))
             {
+                LOG_ERROR("read word failed");
                 return false;
             }
         } while ((val & S_HALT) == 0);
@@ -875,17 +883,20 @@ bool SWDIface::set_target_state(target_state_t state)
         // Enable halt on reset
         if (!write_word(DBG_EMCR, VC_CORERESET))
         {
+            LOG_ERROR("write word 2 failed");
             return false;
         }
 
         // Perform a soft reset
         if (!read_word(NVIC_AIRCR, &val))
         {
+            LOG_ERROR("read word 2 failed");
             return false;
         }
 
         if (!write_word(NVIC_AIRCR, VECTKEY | (val & SCB_AIRCR_PRIGROUP_Msk) | SYSRESETREQ))
         {
+            LOG_ERROR("write word failed");
             return false;
         }
 
@@ -895,6 +906,7 @@ bool SWDIface::set_target_state(target_state_t state)
         {
             if (!read_word(DBG_HCSR, &val))
             {
+                LOG_ERROR("read word 3 failed");
                 return false;
             }
         } while ((val & S_HALT) == 0);
@@ -902,6 +914,7 @@ bool SWDIface::set_target_state(target_state_t state)
         // Disable halt on reset
         if (!write_word(DBG_EMCR, 0))
         {
+            LOG_ERROR("write word 3 failed");
             return false;
         }
         break;

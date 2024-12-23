@@ -126,7 +126,7 @@ FlashIface::err_t FlashAccessor::init(const target_cfg_t &cfg)
     status = flash_init(cfg);
     if (ERR_NONE != status)
     {
-        LOG_ERROR("Flash init failed");
+        LOG_ERROR("Flash init failed error %d", status);
         return status;
     }
 

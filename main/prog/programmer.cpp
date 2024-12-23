@@ -74,6 +74,8 @@ static void programmer_task(void *pvParameters)
     {
         evt = obj.wait_event();
 
+        ESP_LOGI(TAG, "got event:%d", evt);
+
         switch (evt)
         {
         case PROG_EVT_REQUEST:

@@ -41,10 +41,14 @@ bool BinaryProgram::init(const FlashIface::target_cfg_t &cfg, uint32_t program_a
 
 bool BinaryProgram::write(uint8_t *data, size_t len)
 {
-    if (FlashIface::ERR_NONE != _flash_accessor.write(_program_addr, data, len))
+    uint32_t write_timeout = 0;
+    while (FlashIface::ERR_NONE != _flash_accessor.write(_program_addr, data, len))
     {
-        LOG_ERROR("Failed to write data at:%lx", _program_addr);
-        return false;
+        write_timeout++;
+        if (write_timeout > 50) {
+            LOG_ERROR("Failed to write data at:%lx", _program_addr);
+            return false;
+        }
     }
 
     _program_addr += len;

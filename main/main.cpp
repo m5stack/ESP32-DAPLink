@@ -164,7 +164,7 @@ static void led_init(){
     ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
 
     programmer_init();
-    cdc_uart_init(UART_NUM_1, GPIO_NUM_13, GPIO_NUM_14, 115200);
+    cdc_uart_init(UART_NUM_0, GPIO_NUM_2, GPIO_NUM_1, 115200);
     cdc_uart_register_rx_handler(CDC_UART_USB_HANDLER, usb_cdc_send_to_host, (void *)TINYUSB_CDC_ACM_0);
     cdc_uart_register_rx_handler(CDC_UART_WEB_HANDLER, web_send_to_clients, &http_server);
     ESP_LOGI(TAG, "USB initialization DONE");
