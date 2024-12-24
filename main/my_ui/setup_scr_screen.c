@@ -54,7 +54,7 @@ void setup_scr_screen(lv_ui *ui)
 	lv_obj_set_style_anim_time(ui->screen_bar_1, 1000, 0);
 	lv_bar_set_mode(ui->screen_bar_1, LV_BAR_MODE_NORMAL);
 	lv_bar_set_range(ui->screen_bar_1, 0, 100);
-	lv_bar_set_value(ui->screen_bar_1, 50, LV_ANIM_OFF);
+	lv_bar_set_value(ui->screen_bar_1, 0, LV_ANIM_OFF);
 	lv_obj_set_pos(ui->screen_bar_1, 0, 115);
 	lv_obj_set_size(ui->screen_bar_1, 128, 10);
 
