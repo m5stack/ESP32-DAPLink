@@ -12,6 +12,7 @@
 #include "lvgl.h"
 
 #include "event_task.h"
+#include "http_client.h"
 
 #if LV_USE_FREEMASTER
 #include "freemaster_client.h"
@@ -50,6 +51,8 @@ static void screen_btn_1_event_handler (lv_event_t *e)
 	{
 		// start program
 		ESP_LOGI(TAG, "hello");
+		update_prog_progress_and_status();
+		lv_label_set_text_fmt(guider_ui.screen_label_2, "%d,%d", get_prog_progress(), get_prog_status());
 		break;
 	}
 	default:

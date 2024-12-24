@@ -1,6 +1,7 @@
 idf_component_register(SRCS 
                         "main.cpp" 
                         "event_task.cpp"
+                        "http_client.c"
                         "dap/DAP_handle.c"
                         "hal/buzz.c"
                         "hal/power_measure.c"
