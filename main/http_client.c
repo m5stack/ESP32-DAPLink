@@ -201,10 +201,56 @@ void update_prog_progress_and_status(void)
             if (strcmp(s->valuestring, "idle") == 0) {
                 prog_status = PROG_STATUS_IDLE;
             }
+            else if (strcmp(s->valuestring, "busy") == 0) {
+                prog_status = PROG_STATUS_BUSY;
+            }
         }
     }
     // ESP_LOG_BUFFER_HEX(TAG, local_response_buffer, strlen(local_response_buffer));
 
 
+    esp_http_client_cleanup(client);
+}
+
+void start_swd_flash(void)
+{
+    char output_buffer[MAX_HTTP_OUTPUT_BUFFER] = {0};   // Buffer to store response of http request
+    int content_length = 0;
+    esp_http_client_config_t config = {
+        .url = "http://192.168.4.1/program",
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+
+    const char *post_data = "{\"program_mode\":\"offline\",\"format\":\"hex\",\"total_size\":0,\"flash_addr\":134217728,\"ram_addr\":536870912,\"algorithm\":\"STM32G0xx_64.FLM\",\"program\":\"KANTANPlay_STM32_V3_JIE_20241216.hex\"}";
+
+    ESP_LOGI(TAG, "%s", post_data);
+
+    esp_http_client_set_url(client, "http://192.168.4.1/program");
+    esp_http_client_set_method(client, HTTP_METHOD_POST);
+    esp_http_client_set_header(client, "Content-Type", "application/json");    
+    esp_err_t err = esp_http_client_open(client, strlen(post_data));
+
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
+    } else {
+        int wlen = esp_http_client_write(client, post_data, strlen(post_data));
+        if (wlen < 0) {
+            ESP_LOGE(TAG, "Write failed");
+        }
+        content_length = esp_http_client_fetch_headers(client);
+        if (content_length < 0) {
+            ESP_LOGE(TAG, "HTTP client fetch headers failed");
+        } else {
+            int data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
+            if (data_read >= 0) {
+                ESP_LOGI(TAG, "HTTP POST Status = %d, content_length = %"PRIu64,
+                esp_http_client_get_status_code(client),
+                esp_http_client_get_content_length(client));
+                ESP_LOG_BUFFER_HEX(TAG, output_buffer, strlen(output_buffer));
+            } else {
+                ESP_LOGE(TAG, "Failed to read response");
+            }
+        }
+    }
     esp_http_client_cleanup(client);
 }

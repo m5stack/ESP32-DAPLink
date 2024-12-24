@@ -20,7 +20,19 @@
 
 #include "esp_log.h"
 
+static uint8_t is_flash_begin = 0;
+
 static const char *TAG = "lvgl_event";
+
+uint8_t get_flash_begin_status(void)
+{
+	return is_flash_begin;
+}
+
+void set_flash_begin_status(uint8_t status)
+{
+	is_flash_begin = status;
+}
 
 static lv_timer_t *daplink_update_data_task;
 static void screen_event_handler (lv_event_t *e)
@@ -30,7 +42,7 @@ static void screen_event_handler (lv_event_t *e)
 	switch (code) {
 	case LV_EVENT_SCREEN_LOADED:
 	{
-		daplink_update_data_task = lv_timer_create(screen_timer_cb, 100, &guider_ui);
+		daplink_update_data_task = lv_timer_create(screen_timer_cb, 50, &guider_ui);
 		break;
 	}
 	case LV_EVENT_SCREEN_UNLOADED:
@@ -51,8 +63,10 @@ static void screen_btn_1_event_handler (lv_event_t *e)
 	{
 		// start program
 		ESP_LOGI(TAG, "hello");
-		update_prog_progress_and_status();
-		lv_label_set_text_fmt(guider_ui.screen_label_2, "%d,%d", get_prog_progress(), get_prog_status());
+		start_swd_flash();
+		set_flash_begin_status(1);
+		lv_label_set_text(guider_ui.screen_btn_1_label, "Idle");
+		lv_bar_set_value(guider_ui.screen_bar_1, 0, LV_ANIM_OFF);
 		break;
 	}
 	default:

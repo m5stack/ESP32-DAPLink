@@ -20,6 +20,9 @@ void events_init(lv_ui *ui);
 
 void events_init_screen(lv_ui *ui);
 
+uint8_t get_flash_begin_status(void);
+void set_flash_begin_status(uint8_t status);
+
 #ifdef __cplusplus
 }
 #endif
