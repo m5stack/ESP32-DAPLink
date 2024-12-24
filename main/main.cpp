@@ -37,14 +37,31 @@
 #include "power_measure.h"
 #include "buzz.h"
 
+#include "M5Unified.h"
+#include "M5GFX.h"
+#include "lv_port_disp.h"
+#include "lv_port_indev.h"
+#include "lvgl.h"
+#include "gui_guider.h"
+
 #define EXAMPLE_ESP_WIFI_SSID      "ATOMS3R-DAP"
 #define EXAMPLE_ESP_WIFI_PASS      "12345678"
 #define EXAMPLE_ESP_WIFI_CHANNEL   1
 #define EXAMPLE_MAX_STA_CONN       1
 
+#define EXAMPLE_LVGL_TICK_PERIOD_MS     2               /*!< LVGL tick period in ms */
+#define EXAMPLE_LVGL_TASK_MAX_DELAY_MS  500
+#define EXAMPLE_LVGL_TASK_MIN_DELAY_MS  1
+#define EXAMPLE_LVGL_TASK_STACK_SIZE    (8 * 1024)
+#define EXAMPLE_LVGL_TASK_PRIORITY      2
+
+#define LV_TICK_PERIOD_MS 2
+
 static const char *TAG = "main";
 static httpd_handle_t http_server = NULL;
 TaskHandle_t kDAPTaskHandle = NULL;
+SemaphoreHandle_t xGuiSemaphore;
+TaskHandle_t task_lvgl_handle    = NULL;
 
 extern "C" void tcp_server_task(void *pvParameters);
 extern "C" void DAP_Thread(void *pvParameters);
@@ -118,6 +135,45 @@ static void led_init(){
              EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS, EXAMPLE_ESP_WIFI_CHANNEL);
 }
 
+bool example_lvgl_lock(int timeout_ms)
+{
+    const TickType_t timeout_ticks = (timeout_ms == -1) ? portMAX_DELAY : pdMS_TO_TICKS(timeout_ms);
+    return xSemaphoreTake(xGuiSemaphore, timeout_ticks) == pdTRUE;
+}
+
+void example_lvgl_unlock(void)
+{
+    xSemaphoreGive(xGuiSemaphore);
+}
+
+static void example_lvgl_port_task(void *arg)
+{
+    uint32_t task_delay_ms = EXAMPLE_LVGL_TASK_MAX_DELAY_MS;
+    setup_ui(&guider_ui);
+    while (1) {
+        /* Lock the mutex due to the LVGL APIs are not thread-safe */
+        if (example_lvgl_lock(-1)) {
+            M5.update();
+            task_delay_ms = lv_timer_handler();
+            /* Release the mutex */
+            example_lvgl_unlock();
+        }
+        if (task_delay_ms > EXAMPLE_LVGL_TASK_MAX_DELAY_MS) {
+            task_delay_ms = EXAMPLE_LVGL_TASK_MAX_DELAY_MS;
+        } else if (task_delay_ms < EXAMPLE_LVGL_TASK_MIN_DELAY_MS) {
+            task_delay_ms = EXAMPLE_LVGL_TASK_MIN_DELAY_MS;
+        }
+        vTaskDelay(pdMS_TO_TICKS(task_delay_ms));
+    }
+}
+
+static void lv_tick_task(void *arg)
+{
+    (void)arg;
+
+    lv_tick_inc(LV_TICK_PERIOD_MS);
+}
+
  extern "C" void app_main(void)
 {
     bool ret = false;
@@ -185,4 +241,19 @@ static void led_init(){
     
     //ui main
     // ui_main();
+    M5.begin();
+    lv_init();
+    lv_port_disp_init(); 
+    lv_port_indev_init();
+    ESP_LOGI(TAG, "Install LVGL tick timer");
+    xGuiSemaphore = xSemaphoreCreateMutex();
+    const esp_timer_create_args_t periodic_timer_args = {
+        .callback = &lv_tick_task, .name = "periodic_gui"};
+    esp_timer_handle_t periodic_timer;
+    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+    ESP_ERROR_CHECK(
+        esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
+
+    xTaskCreate(example_lvgl_port_task, "LVGL", EXAMPLE_LVGL_TASK_STACK_SIZE, NULL, EXAMPLE_LVGL_TASK_PRIORITY, 
+    &task_lvgl_handle);     
 }
