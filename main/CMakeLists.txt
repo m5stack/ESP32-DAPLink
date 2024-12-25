@@ -35,8 +35,12 @@ idf_component_register(SRCS
                         "my_ui/widgets_init.c"
                         "my_ui/guider_fonts/lv_font_montserratMedium_12.c"
                         "my_ui/guider_fonts/lv_font_montserratMedium_16.c"
+                        "my_ui/guider_fonts/lv_font_montserratMedium_24.c"
                        INCLUDE_DIRS "." "dap" "hal" "web" "prog" "ui" "net" "display" "lvgl_porting" "my_ui" "my_ui/guider_customer_fonts"
                        EMBED_FILES "../html/root.html"
                         "../html/favicon.ico"
                         "../html/program.html"
-                        "../html/webserial.html")          
+                        "../html/webserial.html")   
+
+set(image ../fatfs_image)  
+fatfs_create_spiflash_image(storage ${image} FLASH_IN_PROJECT)     

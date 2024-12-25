@@ -37,6 +37,13 @@
 #include "lvgl.h"
 #include "gui_guider.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "esp_vfs.h"
+#include "esp_vfs_fat.h"
+#include "esp_system.h"
+
 #define EXAMPLE_ESP_WIFI_SSID      "ATOMS3R-DAP"
 #define EXAMPLE_ESP_WIFI_PASS      "12345678"
 #define EXAMPLE_ESP_WIFI_CHANNEL   1
@@ -55,6 +62,10 @@ static httpd_handle_t http_server = NULL;
 TaskHandle_t kDAPTaskHandle = NULL;
 SemaphoreHandle_t xGuiSemaphore;
 TaskHandle_t task_lvgl_handle    = NULL;
+// Mount path for the partition
+const char *base_path = "/data";
+// Handle of the wear levelling library instance
+static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
 
 extern "C" void tcp_server_task(void *pvParameters);
 extern "C" void DAP_Thread(void *pvParameters);
@@ -173,6 +184,53 @@ static void lv_tick_task(void *arg)
     bool ret = false;
 
     ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_LOGI(TAG, "Mounting FAT filesystem");
+    // To mount device we need name of device partition, define base_path
+    // and allow format partition in case if it is new one and was not formatted before
+    esp_vfs_fat_mount_config_t mount_config = {0};
+    mount_config.max_files = 4;
+    mount_config.format_if_mount_failed = false;
+    mount_config.allocation_unit_size = CONFIG_WL_SECTOR_SIZE;
+
+    esp_err_t err = esp_vfs_fat_spiflash_mount_rw_wl(base_path, "storage", &mount_config, &s_wl_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to mount FATFS (%s)", esp_err_to_name(err));
+    } 
+
+    // Print FAT FS size information
+    uint64_t bytes_total, bytes_free;
+    esp_vfs_fat_info(base_path, &bytes_total, &bytes_free);
+    ESP_LOGI(TAG, "FAT FS: %" PRIu64 " kB total, %" PRIu64 " kB free", bytes_total / 1024, bytes_free / 1024);    
+
+    // char line[128];
+    // char *device_filename;
+    // device_filename = "/data/hello/inner.txt";
+    // ESP_LOGI(TAG, "Opening file");
+    // FILE *f;    
+    // f = fopen(device_filename, "wb");
+    // if (f == NULL) {
+    //     ESP_LOGE(TAG, "Failed to open file for writing");
+    // }    
+    // else {
+    //     fprintf(f, "This is written by the device");
+    //     fclose(f);        
+    // }
+    // ESP_LOGI(TAG, "File written");
+    // Open file for reading
+    // ESP_LOGI(TAG, "Reading file");
+    // f = fopen("/data/algorithm/test.txt", "rb");
+    // if (f == NULL) {
+    //     ESP_LOGE(TAG, "Failed to open file for reading");
+    //     return;
+    // }
+    // fgets(line, sizeof(line), f);
+    // fclose(f);   
+    // // strip newline
+    // char *pos = strchr(line, '\n');
+    // if (pos) {
+    //     *pos = '\0';
+    // }
+    // ESP_LOGI(TAG, "Read from file: '%s'", line);     
     // ESP_ERROR_CHECK(esp_netif_init());
     // ESP_ERROR_CHECK(esp_event_loop_create_default());
     // ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, connect_handler, &http_server));

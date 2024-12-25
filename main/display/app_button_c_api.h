@@ -8,7 +8,9 @@ extern "C" {
 #include <freertos/task.h>
 #include "sdkconfig.h"
 
-uint8_t is_button_press(void);
+uint8_t is_button_a_press(void);
+uint8_t is_button_b_press(void);
+uint8_t is_button_c_press(void);
 
 #ifdef __cplusplus
 }
