@@ -5,7 +5,7 @@
  * @brief Specify the use of WINUSB
  *
  */
-#define USE_WINUSB 1
+#define USE_WINUSB 0
 
 /**
  * @brief Enable this option, no need to physically connect MOSI and MISO

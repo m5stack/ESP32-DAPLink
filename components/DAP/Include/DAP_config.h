@@ -198,11 +198,18 @@ of the same I/O port. The following SWDIO I/O Pin functions are provided:
 // #define PIN_LED_RUNNING GPIO_NUM_41
 
 //! ATOMS3R
-#define PIN_SWDIO GPIO_NUM_8
-#define PIN_SWCLK GPIO_NUM_7
-#define PIN_nRESET GPIO_NUM_6
-#define PIN_LED_CONNECTED GPIO_NUM_5
-#define PIN_LED_RUNNING GPIO_NUM_4
+// #define PIN_SWDIO GPIO_NUM_8
+// #define PIN_SWCLK GPIO_NUM_7
+// #define PIN_nRESET GPIO_NUM_6
+// #define PIN_LED_CONNECTED GPIO_NUM_5
+// #define PIN_LED_RUNNING GPIO_NUM_4
+
+//! CORE2
+#define PIN_SWDIO GPIO_NUM_32
+#define PIN_SWCLK GPIO_NUM_33
+#define PIN_nRESET GPIO_NUM_16
+#define PIN_LED_CONNECTED GPIO_NUM_17
+#define PIN_LED_RUNNING GPIO_NUM_26
 
 /** Setup JTAG I/O pins: TCK, TMS, TDI, TDO, nTRST, and nRESET.
 Configures the DAP Hardware I/O pins for JTAG mode:

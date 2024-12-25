@@ -9,8 +9,8 @@
  */
 #include <stdbool.h>
 #include "esp_log.h"
+#include "esp_http_server.h"
 #include "web_handler.h"
-#include "cdc_uart.h"
 #include "programmer.h"
 #include "cJSON.h"
 #include <sys/types.h>
@@ -104,7 +104,7 @@ esp_err_t web_send_to_uart(httpd_req_t *req)
 
     if (ws_pkt.type == HTTPD_WS_TYPE_TEXT)
     {
-        cdc_uart_write(data->buf, ws_pkt.len);
+        // cdc_uart_write(data->buf, ws_pkt.len);
     }
 
     ret = ESP_OK;

@@ -17,18 +17,11 @@
 #include <nvs_flash.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "tinyusb.h"
-#include "tusb_cdc_acm.h"
 #include "sdkconfig.h"
-#include "cdc_uart.h"
-#include "tusb_config.h"
 #include "DAP_config.h"
 #include "DAP.h"
-#include "usb_desc.h"
-#include "msc_disk.h"
 #include "esp_netif.h"
 #include "web_handler.h"
-#include "usb_cdc_handler.h"
 #include "esp_http_server.h"
 #include "web_server.h"
 #include "programmer.h"
@@ -68,18 +61,18 @@ extern "C" void DAP_Thread(void *pvParameters);
 
 extern "C" void ui_main(void);
 
-extern "C" uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t *buffer, uint16_t reqlen)
-{
-    return 0;
-}
+// extern "C" uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t *buffer, uint16_t reqlen)
+// {
+//     return 0;
+// }
 
-extern "C" void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize)
-{
-    static uint8_t s_tx_buf[CFG_TUD_HID_EP_BUFSIZE];
+// extern "C" void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize)
+// {
+//     static uint8_t s_tx_buf[CFG_TUD_HID_EP_BUFSIZE];
 
-    DAP_ProcessCommand(buffer, s_tx_buf);
-    tud_hid_report(0, s_tx_buf, sizeof(s_tx_buf));
-}
+//     DAP_ProcessCommand(buffer, s_tx_buf);
+//     tud_hid_report(0, s_tx_buf, sizeof(s_tx_buf));
+// }
 
 static void disconnect_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
@@ -91,19 +84,19 @@ static void connect_handler(void *arg, esp_event_base_t event_base, int32_t even
     web_server_init((httpd_handle_t *)arg);
 }
 
-static void led_init(){
-    gpio_pad_select_gpio(GPIO_NUM_40);
-    gpio_pad_select_gpio(GPIO_NUM_41);
-    gpio_pad_select_gpio(GPIO_NUM_42);
+// static void led_init(){
+//     gpio_pad_select_gpio(GPIO_NUM_40);
+//     gpio_pad_select_gpio(GPIO_NUM_41);
+//     gpio_pad_select_gpio(GPIO_NUM_42);
 
-    gpio_set_direction(GPIO_NUM_40, GPIO_MODE_OUTPUT);
-    gpio_set_direction(GPIO_NUM_41, GPIO_MODE_OUTPUT);
-    gpio_set_direction(GPIO_NUM_42, GPIO_MODE_OUTPUT);
+//     gpio_set_direction(GPIO_NUM_40, GPIO_MODE_OUTPUT);
+//     gpio_set_direction(GPIO_NUM_41, GPIO_MODE_OUTPUT);
+//     gpio_set_direction(GPIO_NUM_42, GPIO_MODE_OUTPUT);
 
-    gpio_set_level(GPIO_NUM_40, 1);
-    gpio_set_level(GPIO_NUM_41, 1);
-    gpio_set_level(GPIO_NUM_42, 0);
-}
+//     gpio_set_level(GPIO_NUM_40, 1);
+//     gpio_set_level(GPIO_NUM_41, 1);
+//     gpio_set_level(GPIO_NUM_42, 0);
+// }
 
  extern "C"  void wifi_init_softap(void)
 {
@@ -187,44 +180,44 @@ static void lv_tick_task(void *arg)
     // ESP_ERROR_CHECK(example_connect());
     wifi_init_softap();
 
-    tinyusb_config_t tusb_cfg = {
-        .device_descriptor = NULL,
-        .string_descriptor = NULL,
-        .string_descriptor_count = 0,
-        .external_phy = false,
-        .configuration_descriptor = NULL,
-        .self_powered = false,
-        .vbus_monitor_io = 0};
+    // tinyusb_config_t tusb_cfg = {
+    //     .device_descriptor = NULL,
+    //     .string_descriptor = NULL,
+    //     .string_descriptor_count = 0,
+    //     .external_phy = false,
+    //     .configuration_descriptor = NULL,
+    //     .self_powered = false,
+    //     .vbus_monitor_io = 0};
 
-    tinyusb_config_cdcacm_t acm_cfg = {
-        .usb_dev = TINYUSB_USBDEV_0,
-        .cdc_port = TINYUSB_CDC_ACM_0,
-        .rx_unread_buf_sz = 64,
-        .callback_rx = usb_cdc_send_to_uart, // the first way to register a callback
-        .callback_rx_wanted_char = NULL,
-        .callback_line_state_changed = NULL,
-        .callback_line_coding_changed = usb_cdc_set_line_codinig};
+    // tinyusb_config_cdcacm_t acm_cfg = {
+    //     .usb_dev = TINYUSB_USBDEV_0,
+    //     .cdc_port = TINYUSB_CDC_ACM_0,
+    //     .rx_unread_buf_sz = 64,
+    //     .callback_rx = usb_cdc_send_to_uart, // the first way to register a callback
+    //     .callback_rx_wanted_char = NULL,
+    //     .callback_line_state_changed = NULL,
+    //     .callback_line_coding_changed = usb_cdc_set_line_codinig};
 
     // led_init();
 
     DAP_Setup();
 
-    ESP_LOGI(TAG, "USB initialization");
+    // ESP_LOGI(TAG, "USB initialization");
 
-    ret = msc_dick_mount(CONFIG_TINYUSB_MSC_MOUNT_PATH);
-    tusb_cfg.configuration_descriptor = get_configuration_descriptor(ret);
-    tusb_cfg.string_descriptor_count = get_string_descriptor_count(ret);
-    tusb_cfg.string_descriptor = get_string_descriptor(ret);
-    tusb_cfg.device_descriptor = get_device_descriptor();
+    // ret = msc_dick_mount(CONFIG_TINYUSB_MSC_MOUNT_PATH);
+    // tusb_cfg.configuration_descriptor = get_configuration_descriptor(ret);
+    // tusb_cfg.string_descriptor_count = get_string_descriptor_count(ret);
+    // tusb_cfg.string_descriptor = get_string_descriptor(ret);
+    // tusb_cfg.device_descriptor = get_device_descriptor();
 
-    ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
-    ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
+    // ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
+    // ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
 
     programmer_init();
-    cdc_uart_init(UART_NUM_0, GPIO_NUM_2, GPIO_NUM_1, 115200);
-    cdc_uart_register_rx_handler(CDC_UART_USB_HANDLER, usb_cdc_send_to_host, (void *)TINYUSB_CDC_ACM_0);
-    cdc_uart_register_rx_handler(CDC_UART_WEB_HANDLER, web_send_to_clients, &http_server);
-    ESP_LOGI(TAG, "USB initialization DONE");
+    // cdc_uart_init(UART_NUM_0, GPIO_NUM_2, GPIO_NUM_1, 115200);
+    // cdc_uart_register_rx_handler(CDC_UART_USB_HANDLER, usb_cdc_send_to_host, (void *)TINYUSB_CDC_ACM_0);
+    // cdc_uart_register_rx_handler(CDC_UART_WEB_HANDLER, web_send_to_clients, &http_server);
+    // ESP_LOGI(TAG, "USB initialization DONE");
 
 
         // Specify the usbip server task
