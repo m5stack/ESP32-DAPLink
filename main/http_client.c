@@ -24,6 +24,9 @@
 
 #include "cJSON.h"
 
+#include "lvgl.h"
+#include "gui_guider.h"
+
 #define MAX_HTTP_RECV_BUFFER 512
 #define MAX_HTTP_OUTPUT_BUFFER 2048
 static const char *TAG = "HTTP_CLIENT";
@@ -221,7 +224,28 @@ void start_swd_flash(void)
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
 
-    const char *post_data = "{\"program_mode\":\"offline\",\"format\":\"hex\",\"total_size\":0,\"flash_addr\":134217728,\"ram_addr\":536870912,\"algorithm\":\"STM32G0xx_64.FLM\",\"program\":\"KANTANPlay_STM32_V3_JIE_20241216.hex\"}";
+    char temp[100] = {0};
+    char hex_or_bin[50] = {0};
+    char alg[100] = {0};
+    char post_data[1024] = {0};
+
+    lv_dropdown_get_selected_str(guider_ui.screen_ddlist_2, temp, 100);
+    lv_dropdown_get_selected_str(guider_ui.screen_ddlist_1, alg, 100);
+
+    size_t len = strlen(temp);
+    if (strncmp(&temp[len-3], "hex", 3) == 0) {
+        snprintf(hex_or_bin, 50, "hex");
+    }
+    else if (strncmp(&temp[len-3], "bin", 3) == 0) {
+        snprintf(hex_or_bin, 50, "bin");
+    }
+    else {
+        snprintf(hex_or_bin, 50, "hex");
+    }
+
+    snprintf(post_data, 1024, 
+    "{\"program_mode\":\"offline\",\"format\":\"%s\",\"total_size\":0,\"flash_addr\":134217728,\"ram_addr\":536870912,\"algorithm\":\"%s\",\"program\":\"%s\"}",
+    hex_or_bin, alg, temp);
 
     ESP_LOGI(TAG, "%s", post_data);
 

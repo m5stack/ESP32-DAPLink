@@ -12,6 +12,11 @@
 #include "lv_port_indev.h"
 #include "lvgl.h"
 #include "app_button_c_api.h"
+#include "app_display_c_api.h"
+
+#include "esp_log.h"
+
+static const char *TAG = "port_indev";
 
 /*********************
  *      DEFINES
@@ -83,19 +88,20 @@ void lv_port_indev_init(void)
      */
 
     static lv_indev_drv_t indev_drv;
+    static lv_indev_drv_t indev_drv_touch;
 
     /*------------------
      * Touchpad
      * -----------------*/
 
-    // /*Initialize your touchpad if you have*/
-    // touchpad_init();
+    /*Initialize your touchpad if you have*/
+    touchpad_init();
 
-    // /*Register a touchpad input device*/
-    // lv_indev_drv_init(&indev_drv);
-    // indev_drv.type = LV_INDEV_TYPE_POINTER;
-    // indev_drv.read_cb = touchpad_read;
-    // indev_touchpad = lv_indev_drv_register(&indev_drv);
+    /*Register a touchpad input device*/
+    lv_indev_drv_init(&indev_drv_touch);
+    indev_drv_touch.type = LV_INDEV_TYPE_POINTER;
+    indev_drv_touch.read_cb = touchpad_read;
+    indev_touchpad = lv_indev_drv_register(&indev_drv_touch);
 
     /*------------------
      * Mouse
@@ -190,21 +196,24 @@ static void touchpad_init(void)
 /*Will be called by the library to read the touchpad*/
 static void touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
-    static lv_coord_t last_x = 0;
-    static lv_coord_t last_y = 0;
+    uint16_t touch_x = 0;
+    uint16_t touch_y = 0;
+    uint8_t touched;
 
-    /*Save the pressed coordinates and the state*/
-    if(touchpad_is_pressed()) {
-        touchpad_get_xy(&last_x, &last_y);
-        data->state = LV_INDEV_STATE_PR;
-    }
-    else {
+    touched = m5gfx_get_touch(&touch_x, &touch_y);
+    
+
+    if (!touched)
+    {
         data->state = LV_INDEV_STATE_REL;
     }
+    else
+    {
+        data->state = LV_INDEV_STATE_PR;
 
-    /*Set the last pressed coordinates*/
-    data->point.x = last_x;
-    data->point.y = last_y;
+        data->point.x = touch_x;
+        data->point.y = touch_y;
+    }
 }
 
 /*Return true is the touchpad is pressed*/
