@@ -13,7 +13,6 @@ void lfgx_set_addr_window(int32_t x, int32_t y, int32_t w, int32_t h);
 void lfgx_start_write(void);
 void lfgx_end_write(void);
 uint8_t m5gfx_get_touch(uint16_t* x, uint16_t* y);
-void lfgx_init(void);
 
 #ifdef __cplusplus
 }

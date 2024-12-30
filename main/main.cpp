@@ -194,6 +194,7 @@ static void example_lvgl_port_task(void *arg)
     while (1) {
         /* Lock the mutex due to the LVGL APIs are not thread-safe */
         if (example_lvgl_lock(-1)) {
+            M5.update();
             task_delay_ms = lv_timer_handler();
             /* Release the mutex */
             example_lvgl_unlock();
@@ -240,7 +241,9 @@ static esp_err_t s_example_read_file(const char *path)
 {
     esp_err_t ret;
 
-    lfgx_init();
+    M5.begin();
+    M5.Display.begin();
+    M5.Power.begin();
 
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_LOGI(TAG, "Mounting FAT filesystem");
@@ -405,7 +408,6 @@ static esp_err_t s_example_read_file(const char *path)
     
     //ui main
     // ui_main();
-    lfgx_init();
     lv_init();
     lv_port_disp_init(); 
     lv_port_indev_init();
