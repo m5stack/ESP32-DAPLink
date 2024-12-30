@@ -36,6 +36,7 @@
 #include "lv_port_indev.h"
 #include "lvgl.h"
 #include "gui_guider.h"
+#include "app_display_c_api.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,6 +44,11 @@
 #include "esp_vfs.h"
 #include "esp_vfs_fat.h"
 #include "esp_system.h"
+
+#include <sys/unistd.h>
+#include <sys/stat.h>
+#include "sdmmc_cmd.h"
+#include "driver/sdmmc_host.h"
 
 #define EXAMPLE_ESP_WIFI_SSID      "ATOMS3R-DAP"
 #define EXAMPLE_ESP_WIFI_PASS      "12345678"
@@ -56,6 +62,13 @@
 #define EXAMPLE_LVGL_TASK_PRIORITY      2
 
 #define LV_TICK_PERIOD_MS 2
+
+#define SDSPI_CS GPIO_NUM_4
+#define SDSPI_SCK GPIO_NUM_18
+#define SDSPI_MOSI GPIO_NUM_23
+#define SDSPI_MISO GPIO_NUM_38
+
+#define EXAMPLE_MAX_CHAR_SIZE    64
 
 static const char *TAG = "main";
 static httpd_handle_t http_server = NULL;
@@ -109,6 +122,29 @@ static void connect_handler(void *arg, esp_event_base_t event_base, int32_t even
 //     gpio_set_level(GPIO_NUM_42, 0);
 // }
 
+static esp_err_t mount_flash_as_fat(void)
+{
+    // To mount device we need name of device partition, define base_path
+    // and allow format partition in case if it is new one and was not formatted before
+    esp_vfs_fat_mount_config_t mount_config = {0};
+    mount_config.max_files = 4;
+    mount_config.format_if_mount_failed = false;
+    mount_config.allocation_unit_size = CONFIG_WL_SECTOR_SIZE;
+
+    esp_err_t err = esp_vfs_fat_spiflash_mount_rw_wl(base_path, "storage", &mount_config, &s_wl_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to mount FATFS (%s)", esp_err_to_name(err));
+        return err;
+    } 
+
+    // Print FAT FS size information
+    uint64_t bytes_total, bytes_free;
+    esp_vfs_fat_info(base_path, &bytes_total, &bytes_free);
+    ESP_LOGI(TAG, "FAT FS: %" PRIu64 " kB total, %" PRIu64 " kB free", bytes_total / 1024, bytes_free / 1024);
+
+    return err; 
+}
+
  extern "C"  void wifi_init_softap(void)
 {
     ESP_ERROR_CHECK(esp_netif_init());
@@ -158,7 +194,6 @@ static void example_lvgl_port_task(void *arg)
     while (1) {
         /* Lock the mutex due to the LVGL APIs are not thread-safe */
         if (example_lvgl_lock(-1)) {
-            M5.update();
             task_delay_ms = lv_timer_handler();
             /* Release the mutex */
             example_lvgl_unlock();
@@ -179,28 +214,105 @@ static void lv_tick_task(void *arg)
     lv_tick_inc(LV_TICK_PERIOD_MS);
 }
 
+static esp_err_t s_example_read_file(const char *path)
+{
+    ESP_LOGI(TAG, "Reading file %s", path);
+    FILE *f = fopen(path, "r");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return ESP_FAIL;
+    }
+    char line[EXAMPLE_MAX_CHAR_SIZE];
+    fgets(line, sizeof(line), f);
+    fclose(f);
+
+    // strip newline
+    char *pos = strchr(line, '\n');
+    if (pos) {
+        *pos = '\0';
+    }
+    ESP_LOGI(TAG, "Read from file: '%s'", line);
+
+    return ESP_OK;
+}
+
  extern "C" void app_main(void)
 {
-    bool ret = false;
+    esp_err_t ret;
+
+    lfgx_init();
 
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_LOGI(TAG, "Mounting FAT filesystem");
-    // To mount device we need name of device partition, define base_path
-    // and allow format partition in case if it is new one and was not formatted before
-    esp_vfs_fat_mount_config_t mount_config = {0};
-    mount_config.max_files = 4;
+    ESP_LOGI(TAG, "Using SPI peripheral");
+
+    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+
+    host.max_freq_khz = 80000;
+    host.command_timeout_ms = 10000;
+
+    spi_bus_config_t bus_cfg = {
+        .mosi_io_num = SDSPI_MOSI,
+        .miso_io_num = SDSPI_MISO,
+        .sclk_io_num = SDSPI_SCK,
+        .quadwp_io_num = -1,
+        .quadhd_io_num = -1,
+        .max_transfer_sz = 80000,
+    };
+
+    host.slot = VSPI_HOST;
+
+    // ret = spi_bus_initialize((spi_host_device_t)host.slot, &bus_cfg, VSPI_HOST);
+    // if (ret != ESP_OK) {
+    //     ESP_LOGE(TAG, "Failed to initialize bus.");
+    // }    
+
+    sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
+    slot_config.gpio_cs = SDSPI_CS;
+    slot_config.host_id = (spi_host_device_t)host.slot;    
+
+    // Options for mounting the filesystem.
+    // If format_if_mount_failed is set to true, SD card will be partitioned and
+    // formatted in case when mounting fails.
+    esp_vfs_fat_sdmmc_mount_config_t mount_config = {0};
+    mount_config.max_files = 5;
     mount_config.format_if_mount_failed = false;
-    mount_config.allocation_unit_size = CONFIG_WL_SECTOR_SIZE;
+    mount_config.allocation_unit_size = 16 * 1024;    
 
-    esp_err_t err = esp_vfs_fat_spiflash_mount_rw_wl(base_path, "storage", &mount_config, &s_wl_handle);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to mount FATFS (%s)", esp_err_to_name(err));
-    } 
+    sdmmc_card_t *card;
 
-    // Print FAT FS size information
-    uint64_t bytes_total, bytes_free;
-    esp_vfs_fat_info(base_path, &bytes_total, &bytes_free);
-    ESP_LOGI(TAG, "FAT FS: %" PRIu64 " kB total, %" PRIu64 " kB free", bytes_total / 1024, bytes_free / 1024);    
+    ESP_LOGI(TAG, "Mounting SDSPI");
+    ret = esp_vfs_fat_sdspi_mount(base_path, &host, &slot_config, &mount_config, &card);  
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount filesystem. "
+                     "If you want the card to be formatted, set the EXAMPLE_FORMAT_IF_MOUNT_FAILED menuconfig option.");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize the card (%s). "
+                     "Make sure SD card lines have pull-up resistors in place.", esp_err_to_name(ret));
+        }
+        ESP_LOGI(TAG, "Mounting flash fat");
+        ret = mount_flash_as_fat();
+
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed mount flash fat");
+        }
+        else {
+            ESP_LOGI(TAG, "Flash fat Filesystem mounted");
+        }
+    }
+    else {
+        ESP_LOGI(TAG, "SDSPI Filesystem mounted");
+        // Card has been initialized, print its properties
+        sdmmc_card_print_info(stdout, card);        
+    }   
+
+    // const char *file_foo = "/data/foo.txt";
+    // ret = s_example_read_file(file_foo);
+    // if (ret != ESP_OK) {
+    //     M5.Power.powerOff();
+    // }    
 
     // char line[128];
     // char *device_filename;
@@ -293,7 +405,7 @@ static void lv_tick_task(void *arg)
     
     //ui main
     // ui_main();
-    M5.begin();
+    lfgx_init();
     lv_init();
     lv_port_disp_init(); 
     lv_port_indev_init();

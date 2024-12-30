@@ -27,6 +27,9 @@
 #include "esp_vfs_fat.h"
 #include "esp_system.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #define DIR_NUM_MAX 10 
 
 static uint8_t is_flash_begin = 0;
@@ -41,29 +44,33 @@ static void list_algorithm()
     ESP_LOGI(TAG, "Opening dir %s", dir_alg);
 
     DIR *dir_t1 = opendir(dir_alg);
+	if (dir_t1) {
+		int count = 0;
+		const char* names[DIR_NUM_MAX];
 
-    int count = 0;
-    const char* names[DIR_NUM_MAX];
+		ESP_LOGI(TAG, "DIR: %s\n",dir_alg);
+		lv_dropdown_clear_options(guider_ui.screen_ddlist_1);
+		while(1) {
+			struct dirent* de = readdir(dir_t1);
+			if (!de) {
+				break;
+			}
 
-    ESP_LOGI(TAG, "DIR: %s\n",dir_alg);
-	lv_dropdown_clear_options(guider_ui.screen_ddlist_1);
-    while(1) {
-        struct dirent* de = readdir(dir_t1);
-        if (!de) {
-            break;
-        }
-
-        ESP_LOGI(TAG, "\t%s\n", de->d_name);
-		char *tmp = NULL;
-		if ((tmp = strstr(de->d_name, "\n"))) {
-			*tmp = '\0';
-		}		
-		lv_dropdown_add_option(guider_ui.screen_ddlist_1, de->d_name, file_index);
-        names[count] = de->d_name;
-        ++count;
-		++file_index;
-    }
-    closedir((DIR*)dir_alg);	
+			ESP_LOGI(TAG, "\t%s\n", de->d_name);
+			char *tmp = NULL;
+			if ((tmp = strstr(de->d_name, "\n"))) {
+				*tmp = '\0';
+			}		
+			lv_dropdown_add_option(guider_ui.screen_ddlist_1, de->d_name, file_index);
+			names[count] = de->d_name;
+			++count;
+			++file_index;
+		}
+		closedir((DIR*)dir_alg);
+	}
+	else {
+		ESP_LOGI(TAG, "open file failed");
+	}
 }
 
 static void list_program()

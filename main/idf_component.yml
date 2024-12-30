@@ -1,6 +1,6 @@
 ## IDF Component Manager Manifest File
 dependencies:
+  m5stack/m5unified: "^0.2.0"
+  m5stack/m5gfx: "^0.2.0"
   lvgl/lvgl: "^8.3.10"
-  m5stack/m5unified: "^0.1.17"
-  m5stack/m5gfx: "^0.1.17-idf-component"
   idf: "^5.0"

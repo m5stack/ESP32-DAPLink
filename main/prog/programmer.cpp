@@ -105,7 +105,7 @@ void programmer_init(void)
         mkdir(CONFIG_PROGRAMMER_PROGRAM_ROOT, 0777);
 
     s_data.init();
-    xTaskCreate(programmer_task, "programmer", 1024 * 4, &s_data, 2, NULL);
+    xTaskCreate(programmer_task, "programmer", 1024 * 8, &s_data, 2, NULL);
 }
 
 void programmer_get_status(char *buf, int size, int &encode_len)
