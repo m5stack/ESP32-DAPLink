@@ -244,6 +244,8 @@ static esp_err_t s_example_read_file(const char *path)
     M5.begin();
     M5.Display.begin();
     M5.Power.begin();
+    M5.Speaker.begin();
+    M5.Speaker.setVolume(100);
 
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_LOGI(TAG, "Mounting FAT filesystem");

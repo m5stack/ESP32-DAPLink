@@ -31,3 +31,9 @@ uint8_t m5gfx_get_touch(uint16_t* x, uint16_t* y)
 {
     return M5.Display.getTouch(x, y);
 }
+
+extern "C" void beep(void);
+void beep(void)
+{
+  M5.Speaker.tone(4000, 100);
+}
