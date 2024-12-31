@@ -29,6 +29,7 @@ typedef struct
 	lv_obj_t *screen_btn_1;
 	lv_obj_t *screen_btn_1_label;
     lv_obj_t *screen_label_4;
+	lv_obj_t *screen_label_5;    
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);

@@ -50,6 +50,8 @@
 #include "sdmmc_cmd.h"
 #include "driver/sdmmc_host.h"
 
+#include "main.h"
+
 #define EXAMPLE_ESP_WIFI_SSID      "ATOMS3R-DAP"
 #define EXAMPLE_ESP_WIFI_PASS      "12345678"
 #define EXAMPLE_ESP_WIFI_CHANNEL   1
@@ -79,6 +81,8 @@ TaskHandle_t task_lvgl_handle    = NULL;
 const char *base_path = "/data";
 // Handle of the wear levelling library instance
 static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
+static storage_status_t storage_mount_status = STORAGE_SD;
+static sdmmc_card_t *card;
 
 extern "C" void tcp_server_task(void *pvParameters);
 extern "C" void DAP_Thread(void *pvParameters);
@@ -121,6 +125,21 @@ static void connect_handler(void *arg, esp_event_base_t event_base, int32_t even
 //     gpio_set_level(GPIO_NUM_41, 1);
 //     gpio_set_level(GPIO_NUM_42, 0);
 // }
+
+storage_status_t get_storage_status(void)
+{
+    return storage_mount_status;
+}
+
+sdmmc_card_t* get_sdcard_status(void)
+{
+    return card;
+}
+
+const char* get_base_path(void)
+{
+    return base_path;
+}
 
 static esp_err_t mount_flash_as_fat(void)
 {
@@ -284,8 +303,6 @@ static esp_err_t s_example_read_file(const char *path)
     mount_config.format_if_mount_failed = false;
     mount_config.allocation_unit_size = 16 * 1024;    
 
-    sdmmc_card_t *card;
-
     ESP_LOGI(TAG, "Mounting SDSPI");
     ret = esp_vfs_fat_sdspi_mount(base_path, &host, &slot_config, &mount_config, &card);  
 
@@ -301,13 +318,16 @@ static esp_err_t s_example_read_file(const char *path)
         ret = mount_flash_as_fat();
 
         if (ret != ESP_OK) {
+            storage_mount_status = STORAGE_ERROR;
             ESP_LOGE(TAG, "Failed mount flash fat");
         }
         else {
+            storage_mount_status = STORAGE_FLASH;
             ESP_LOGI(TAG, "Flash fat Filesystem mounted");
         }
     }
     else {
+        storage_mount_status = STORAGE_SD;
         ESP_LOGI(TAG, "SDSPI Filesystem mounted");
         // Card has been initialized, print its properties
         sdmmc_card_print_info(stdout, card);        

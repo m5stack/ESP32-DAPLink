@@ -31,6 +31,9 @@
 #include "freertos/task.h"
 #include "app_display_c_api.h"
 
+#include "main.h"
+#include "sdmmc_cmd.h"
+
 #define DIR_NUM_MAX 10 
 
 static uint8_t is_flash_begin = 0;
@@ -127,6 +130,36 @@ static void screen_event_handler (lv_event_t *e)
 	{
 		list_algorithm();
 		list_program();
+
+		uint64_t bytes_total, bytes_free;
+		long int bytes_total_mb, bytes_free_mb;
+		storage_status_t s = get_storage_status();
+		const char* base_path = get_base_path();
+
+		if (s == STORAGE_SD) {
+			sdmmc_card_t* card = get_sdcard_status();
+			sdmmc_card_print_info(stdout, card);
+			esp_vfs_fat_info(base_path, &bytes_total, &bytes_free);	
+			bytes_total_mb = bytes_total / 1048576;
+			bytes_free_mb = bytes_free / 1048576;
+			lv_label_set_text_fmt(guider_ui.screen_label_5, 
+			"SDCard\n%ldMB/%ldMB",
+			bytes_free_mb, bytes_total_mb);
+			ESP_LOGI(TAG, "FAT FS: %" PRIu64 " kB total, %" PRIu64 " kB free", bytes_total / 1024, bytes_free / 1024);
+		}
+		else if (s == STORAGE_FLASH) {
+			esp_vfs_fat_info(base_path, &bytes_total, &bytes_free);	
+			bytes_total_mb = bytes_total / 1048576;
+			bytes_free_mb = bytes_free / 1048576;
+			lv_label_set_text_fmt(guider_ui.screen_label_5, 
+			"Flash\n%ldMB/%ldMB",
+			bytes_free_mb, bytes_total_mb);			
+			ESP_LOGI(TAG, "FAT FS: %" PRIu64 " kB total, %" PRIu64 " kB free", bytes_total / 1024, bytes_free / 1024);		
+		}
+		else if (s == STORAGE_ERROR) {
+			lv_label_set_text(guider_ui.screen_label_5, "Storage Error");	
+		}
+
 		daplink_update_data_task = lv_timer_create(screen_timer_cb, 50, &guider_ui);
 		break;
 	}
