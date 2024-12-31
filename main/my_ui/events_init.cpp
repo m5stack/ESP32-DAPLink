@@ -151,6 +151,7 @@ static void screen_btn_1_event_handler (lv_event_t *e)
 		ESP_LOGI(TAG, "hello");
 		start_swd_flash();
 		set_flash_begin_status(1);
+		lv_obj_set_style_bg_color(guider_ui.screen_btn_1, lv_color_hex(0x2195f6), LV_PART_MAIN|LV_STATE_DEFAULT);
 		lv_label_set_text(guider_ui.screen_btn_1_label, "Idle");
 		lv_bar_set_value(guider_ui.screen_bar_1, 0, LV_ANIM_OFF);
 		break;

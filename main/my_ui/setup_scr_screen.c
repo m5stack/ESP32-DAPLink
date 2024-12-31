@@ -254,8 +254,8 @@ void setup_scr_screen(lv_ui *ui)
 	lv_label_set_long_mode(ui->screen_btn_1_label, LV_LABEL_LONG_WRAP);
 	lv_obj_align(ui->screen_btn_1_label, LV_ALIGN_CENTER, 0, 0);
 	lv_obj_set_style_pad_all(ui->screen_btn_1, 0, LV_STATE_DEFAULT);
-	lv_obj_set_pos(ui->screen_btn_1, 110, 210);
-	lv_obj_set_size(ui->screen_btn_1, 100, 30);
+	lv_obj_set_pos(ui->screen_btn_1, 110, 200);
+	lv_obj_set_size(ui->screen_btn_1, 100, 40);
 
 	//Write style for screen_btn_1, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
 	lv_obj_set_style_bg_opa(ui->screen_btn_1, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
