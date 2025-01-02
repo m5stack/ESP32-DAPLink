@@ -27,6 +27,10 @@
 #include "esp_vfs_fat.h"
 #include "esp_system.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "app_display_c_api.h"
+
 #define DIR_NUM_MAX 10 
 
 static uint8_t is_flash_begin = 0;
@@ -143,6 +147,7 @@ static void screen_btn_1_event_handler (lv_event_t *e)
 	case LV_EVENT_CLICKED:
 	{
 		// start program
+		beep();
 		ESP_LOGI(TAG, "hello");
 		start_swd_flash();
 		set_flash_begin_status(1);
