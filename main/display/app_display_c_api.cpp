@@ -25,3 +25,9 @@ void lfgx_end_write(void)
 {
     M5.Display.endWrite();
 }  
+
+extern "C" uint8_t m5gfx_get_touch(uint16_t* x, uint16_t* y);
+uint8_t m5gfx_get_touch(uint16_t* x, uint16_t* y)
+{
+    return M5.Display.getTouch(x, y);
+}
