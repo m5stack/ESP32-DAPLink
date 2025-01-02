@@ -134,8 +134,8 @@ static void screen_event_handler (lv_event_t *e)
 		bytes_total_mb = bytes_total / 1048576;
 		bytes_free_mb = bytes_free / 1048576;		
 		lv_label_set_text_fmt(guider_ui.screen_label_5, 
-		"Flash\n%ldMB/%ldMB",
-		bytes_free_mb, bytes_total_mb);			
+		"Flash\nTotal:%ldMB\nFree:%ldMB",
+		bytes_total_mb, bytes_free_mb);				
 		ESP_LOGI(TAG, "FAT FS: %" PRIu64 " kB total, %" PRIu64 " kB free", bytes_total / 1024, bytes_free / 1024);		
 		daplink_update_data_task = lv_timer_create(screen_timer_cb, 50, &guider_ui);
 		break;
