@@ -154,7 +154,6 @@ static void example_lvgl_port_task(void *arg)
     while (1) {
         /* Lock the mutex due to the LVGL APIs are not thread-safe */
         if (example_lvgl_lock(-1)) {
-            M5.update();
             task_delay_ms = lv_timer_handler();
             /* Release the mutex */
             example_lvgl_unlock();

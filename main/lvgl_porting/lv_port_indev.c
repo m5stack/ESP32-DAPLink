@@ -11,7 +11,6 @@
  *********************/
 #include "lv_port_indev.h"
 #include "lvgl.h"
-#include "app_button_c_api.h"
 
 /*********************
  *      DEFINES
@@ -155,20 +154,20 @@ void lv_port_indev_init(void)
      * Button
      * -----------------*/
 
-    /*Initialize your button if you have*/
-    button_init();
+    // /*Initialize your button if you have*/
+    // button_init();
 
-    /*Register a button input device*/
-    lv_indev_drv_init(&indev_drv);
-    indev_drv.type = LV_INDEV_TYPE_BUTTON;
-    indev_drv.read_cb = button_read;
-    indev_button = lv_indev_drv_register(&indev_drv);
+    // /*Register a button input device*/
+    // lv_indev_drv_init(&indev_drv);
+    // indev_drv.type = LV_INDEV_TYPE_BUTTON;
+    // indev_drv.read_cb = button_read;
+    // indev_button = lv_indev_drv_register(&indev_drv);
 
-    /*Assign buttons to points on the screen*/
-    static const lv_point_t btn_points[1] = {
-        {0, 65},   /*Button 0 -> x:0; y:65*/
-    };
-    lv_indev_set_button_points(indev_button, btn_points);
+    // /*Assign buttons to points on the screen*/
+    // static const lv_point_t btn_points[1] = {
+    //     {0, 65},   /*Button 0 -> x:0; y:65*/
+    // };
+    // lv_indev_set_button_points(indev_button, btn_points);
 }
 
 /**********************
@@ -403,8 +402,6 @@ static bool button_is_pressed(uint8_t id)
 {
 
     /*Your code comes here*/
-    if (is_button_press())
-        return true;
 
     return false;
 }

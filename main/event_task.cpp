@@ -42,5 +42,5 @@ void screen_timer_cb(lv_timer_t *t)
         }
     }
     
-    lv_label_set_text_fmt(guider_ui.screen_label_2, "%d,%d", get_prog_progress(), get_prog_status());
+    lv_label_set_text_fmt(guider_ui.screen_label_4, "%d,%d", get_prog_progress(), get_prog_status());
 }
