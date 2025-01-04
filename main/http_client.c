@@ -45,6 +45,16 @@ int get_prog_progress(void)
     return prog_progress;
 }
 
+void set_prog_progress(int progress)
+{
+    prog_progress = progress;
+}
+
+void set_prog_status(prog_status_t status)
+{
+    prog_status = status;
+}
+
 prog_status_t get_prog_status(void)
 {
     return prog_status;
@@ -210,7 +220,7 @@ void update_prog_progress_and_status(void)
         }
     }
     // ESP_LOG_BUFFER_HEX(TAG, local_response_buffer, strlen(local_response_buffer));
-
+    cJSON_Delete(root); 
 
     esp_http_client_cleanup(client);
 }

@@ -160,7 +160,7 @@ static void screen_event_handler (lv_event_t *e)
 			lv_label_set_text(guider_ui.screen_label_5, "Storage Error");	
 		}
 
-		daplink_update_data_task = lv_timer_create(screen_timer_cb, 50, &guider_ui);
+		daplink_update_data_task = lv_timer_create(screen_timer_cb, 10, &guider_ui);
 		break;
 	}
 	case LV_EVENT_SCREEN_UNLOADED:

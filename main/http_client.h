@@ -15,6 +15,8 @@ void start_swd_flash(void);
 int get_rx_data_len(void);
 int get_prog_progress(void);
 prog_status_t get_prog_status(void);
+void set_prog_progress(int progress);
+void set_prog_status(prog_status_t status);
  
 #ifdef __cplusplus
 }
