@@ -11,6 +11,8 @@
 #include <sys/stat.h>
 #include <cstring>
 
+#include "swd_host.h"
+
 #define TAG "programmer"
 
 static ProgData s_data;
@@ -79,6 +81,7 @@ static void programmer_task(void *pvParameters)
         switch (evt)
         {
         case PROG_EVT_REQUEST:
+            swd_set_target_state_hw(RESET_HOLD);
             s_prog->request_handle(obj);
             break;
         case PROG_EVT_PROGRAM_START:
@@ -105,7 +108,7 @@ void programmer_init(void)
         mkdir(CONFIG_PROGRAMMER_PROGRAM_ROOT, 0777);
 
     s_data.init();
-    xTaskCreate(programmer_task, "programmer", 1024 * 8, &s_data, 2, NULL);
+    xTaskCreate(programmer_task, "programmer", 1024 * 12, &s_data, 2, NULL);
 }
 
 void programmer_get_status(char *buf, int size, int &encode_len)

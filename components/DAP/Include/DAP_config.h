@@ -200,7 +200,7 @@ of the same I/O port. The following SWDIO I/O Pin functions are provided:
 //! CORES3
 #define PIN_SWDIO GPIO_NUM_6
 #define PIN_SWCLK GPIO_NUM_7
-#define PIN_nRESET GPIO_NUM_18
+#define PIN_nRESET GPIO_NUM_2
 #define PIN_LED_CONNECTED GPIO_NUM_17
 #define PIN_LED_RUNNING GPIO_NUM_9
 
@@ -411,11 +411,13 @@ __STATIC_FORCEINLINE void     PIN_nRESET_OUT(uint32_t bit)
 {
 	if (bit)
 	{
-		WRITE_PERI_REG(GPIO_OUT_W1TS_REG, (0x1 << PIN_nRESET));
+		// WRITE_PERI_REG(GPIO_OUT_W1TS_REG, (0x1 << PIN_nRESET));
+		gpio_set_level(PIN_nRESET, 1);
 	}
 	else
 	{
-		WRITE_PERI_REG(GPIO_OUT_W1TC_REG, (0x1 << PIN_nRESET));
+		// WRITE_PERI_REG(GPIO_OUT_W1TC_REG, (0x1 << PIN_nRESET));
+		gpio_set_level(PIN_nRESET, 0);
 		swd_write_word(NVIC_AIRCR, ((0x5FA << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk));
 	}
 }
@@ -516,7 +518,7 @@ __STATIC_INLINE void DAP_SETUP(void)
 {
     PORT_JTAG_SETUP();
 	PORT_SWD_SETUP();
-	gpio_set_direction(PIN_nRESET, GPIO_MODE_INPUT_OUTPUT);
+	gpio_set_direction(PIN_nRESET, GPIO_MODE_OUTPUT);
 	gpio_set_level(PIN_nRESET, 1);
 	// Configure: LED as output (turned off)
 	gpio_set_direction(PIN_LED_CONNECTED, GPIO_MODE_OUTPUT);
