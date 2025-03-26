@@ -45,3 +45,6 @@ idf_component_register(SRCS
                         "../html/favicon.ico"
                         "../html/program.html"
                         "../html/webserial.html")          
+
+set(image ../fatfs_image)  
+fatfs_create_spiflash_image(storage ${image} FLASH_IN_PROJECT)                            
