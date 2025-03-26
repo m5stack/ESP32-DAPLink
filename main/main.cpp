@@ -52,7 +52,7 @@
 
 #include "main.h"
 
-#define EXAMPLE_ESP_WIFI_SSID      "ATOMS3R-DAP"
+#define EXAMPLE_ESP_WIFI_SSID      "M5-DAPLink"
 #define EXAMPLE_ESP_WIFI_PASS      "12345678"
 #define EXAMPLE_ESP_WIFI_CHANNEL   1
 #define EXAMPLE_MAX_STA_CONN       1
