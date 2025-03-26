@@ -95,13 +95,13 @@ void lv_port_indev_init(void)
      * -----------------*/
 
     /*Initialize your touchpad if you have*/
-    touchpad_init();
+    // touchpad_init();
 
-    /*Register a touchpad input device*/
-    lv_indev_drv_init(&indev_drv_touch);
-    indev_drv_touch.type = LV_INDEV_TYPE_POINTER;
-    indev_drv_touch.read_cb = touchpad_read;
-    indev_touchpad = lv_indev_drv_register(&indev_drv_touch);
+    // /*Register a touchpad input device*/
+    // lv_indev_drv_init(&indev_drv_touch);
+    // indev_drv_touch.type = LV_INDEV_TYPE_POINTER;
+    // indev_drv_touch.read_cb = touchpad_read;
+    // indev_touchpad = lv_indev_drv_register(&indev_drv_touch);
 
     /*------------------
      * Mouse

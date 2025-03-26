@@ -205,10 +205,17 @@ of the same I/O port. The following SWDIO I/O Pin functions are provided:
 // #define PIN_LED_RUNNING GPIO_NUM_4
 
 //! CORE2
-#define PIN_SWDIO GPIO_NUM_27
-#define PIN_SWCLK GPIO_NUM_19
-#define PIN_nRESET GPIO_NUM_32
-#define PIN_LED_CONNECTED GPIO_NUM_14
+// #define PIN_SWDIO GPIO_NUM_27
+// #define PIN_SWCLK GPIO_NUM_19
+// #define PIN_nRESET GPIO_NUM_32
+// #define PIN_LED_CONNECTED GPIO_NUM_14
+// #define PIN_LED_RUNNING GPIO_NUM_26
+
+//! Basic
+#define PIN_SWDIO GPIO_NUM_12
+#define PIN_SWCLK GPIO_NUM_13
+#define PIN_nRESET GPIO_NUM_2
+#define PIN_LED_CONNECTED GPIO_NUM_17
 #define PIN_LED_RUNNING GPIO_NUM_26
 
 /** Setup JTAG I/O pins: TCK, TMS, TDI, TDO, nTRST, and nRESET.
