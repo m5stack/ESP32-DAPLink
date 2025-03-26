@@ -28,7 +28,7 @@ void setup_scr_screen(lv_ui *ui)
 
 	//Write codes screen_label_1
 	ui->screen_label_1 = lv_label_create(ui->screen);
-	lv_label_set_text(ui->screen_label_1, "DAPLink");
+	lv_label_set_text(ui->screen_label_1, "M5 DAPLink");
 	lv_label_set_long_mode(ui->screen_label_1, LV_LABEL_LONG_WRAP);
 	lv_obj_set_pos(ui->screen_label_1, 0, 0);
 	lv_obj_set_size(ui->screen_label_1, 320, 32);
