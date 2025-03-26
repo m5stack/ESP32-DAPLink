@@ -2,12 +2,44 @@
 #include "esp_log.h"
 #include "events_init.h"
 #include "http_client.h"
+#include "programmer.h"
+#include "cJSON.h"
 
 static const char *TAG = "event_task";
 
 static uint8_t flash_status = 0;
 static uint8_t last_flash_status = 0;
 static TickType_t flash_counter = 0;
+
+static void update_prog_progress_and_status_locally(void)
+{
+    char buffer[100] = {0};
+    int encode_len = 0;
+
+    programmer_get_status(buffer, 100, encode_len);
+    ESP_LOGI(TAG, "%s", buffer);
+
+    cJSON *root = NULL;
+    root = cJSON_Parse(buffer);
+    if (root) {
+        cJSON *p = cJSON_GetObjectItem(root, "progress");
+        if (p) {
+            ESP_LOGI(TAG, "progress:%d", p->valueint);
+            set_prog_progress(p->valueint);
+        }
+        cJSON *s = cJSON_GetObjectItem(root, "status");
+        if (s) {
+            ESP_LOGI(TAG, "status:%s", s->valuestring);
+            if (strcmp(s->valuestring, "idle") == 0) {
+                set_prog_status(PROG_STATUS_IDLE);
+            }
+            else if (strcmp(s->valuestring, "busy") == 0) {
+                set_prog_status(PROG_STATUS_BUSY);
+            }
+        }
+    }  
+    cJSON_Delete(root); 
+}
 
 void screen_timer_cb(lv_timer_t *t) 
 {
@@ -19,7 +51,7 @@ void screen_timer_cb(lv_timer_t *t)
         last_flash_status = flash_status;
     }
     if (flash_status) {
-        update_prog_progress_and_status();
+        update_prog_progress_and_status_locally();
         prog_status_t s = get_prog_status();
         int p = get_prog_progress();
         if (s == PROG_STATUS_IDLE && p == 0) {

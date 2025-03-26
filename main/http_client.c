@@ -45,6 +45,16 @@ int get_prog_progress(void)
     return prog_progress;
 }
 
+void set_prog_progress(int progress)
+{
+    prog_progress = progress;
+}
+
+void set_prog_status(prog_status_t status)
+{
+    prog_status = status;
+}
+
 prog_status_t get_prog_status(void)
 {
     return prog_status;
@@ -210,7 +220,7 @@ void update_prog_progress_and_status(void)
         }
     }
     // ESP_LOG_BUFFER_HEX(TAG, local_response_buffer, strlen(local_response_buffer));
-
+    cJSON_Delete(root); 
 
     esp_http_client_cleanup(client);
 }
@@ -245,7 +255,7 @@ void start_swd_flash(void)
 
     snprintf(post_data, 1024, 
     "{\"program_mode\":\"offline\",\"format\":\"%s\",\"total_size\":0,\"flash_addr\":134217728,\"ram_addr\":536870912,\"algorithm\":\"%s\",\"program\":\"%s\"}",
-    hex_or_bin, alg, temp);    
+    hex_or_bin, alg, temp);
 
     ESP_LOGI(TAG, "%s", post_data);
 
